@@ -65,6 +65,31 @@ router.post("/", async (req: Request, res: Response) => {
   });
 });
 
+router.get("/:id", async (req: Request, res: Response) => {
+  const courseId = req.params.id;
+
+  const course = courses.find((c) => c.id === courseId);
+
+  if (!course) {
+    res.status(404).json({
+      ok: false,
+      message: `course with id: "${courseId}" not found`,
+      data: null,
+      error: {
+        message: `course with id: "${courseId}" not found`,
+      },
+    });
+    return;
+  }
+
+  res.json({
+    ok: true,
+    message: "success",
+    data: course,
+    error: null,
+  });
+});
+
 router.patch("/:id", async (req: Request, res: Response) => {
   const body = req.body;
   const courseId = req.params.id;
