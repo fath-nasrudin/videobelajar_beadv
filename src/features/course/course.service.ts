@@ -48,6 +48,9 @@ export function createCourse(data: CreateCourseInputSchema): Course {
 export function getCourseById(id: Course["id"]): Course {
   const course = courses.find((c) => c.id === id);
 
+  // @todo should fetch categories for the course
+  // const thisCourseCategories =
+
   if (!course) {
     throw new Error(`Course with id: "${id}" not found`);
   }

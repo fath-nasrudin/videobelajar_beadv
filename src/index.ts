@@ -2,6 +2,7 @@ import express, { Request } from "express";
 import { Application } from "express";
 import { Response } from "express";
 import { courseRouter } from "./features/course/course.route";
+import { categoryRouter } from "./features/category/category.route";
 
 const app: Application = express();
 const PORT = 3000;
@@ -14,6 +15,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use("/api/courses", courseRouter);
+app.use("/api/categories", categoryRouter);
 
 app.listen(PORT, () => {
   console.log(`running on http://localhost:${PORT}`);
