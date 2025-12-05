@@ -27,7 +27,7 @@ router.post("/", async (req: Request, res: Response) => {
   // create course
   const status = await courseService.createCourse(data);
 
-  res.json({
+  res.status(201).json({
     ok: true,
     message: "Success",
     data: status,
