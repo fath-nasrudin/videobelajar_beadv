@@ -1,13 +1,14 @@
 import fs from "fs";
 import path from "path";
 import mysql from "mysql2/promise";
+import "dotenv/config";
 
 async function main() {
   const db = await mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "123123123",
-    database: "test123",
+    host: process.env.DB_HOST as string,
+    user: process.env.DB_USER as string,
+    password: process.env.DB_PASSWORD as string,
+    database: process.env.DB_NAME as string,
   });
 
   const seedDir = path.join(process.cwd(), "seeds");
