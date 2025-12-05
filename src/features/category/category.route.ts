@@ -4,25 +4,12 @@ import {
   createCategorySchema,
   updateCategorySchema,
 } from "./category.schema";
-
-let categories: Category[] = [
-  {
-    id: "cat1",
-    name: "web dev",
-  },
-  {
-    id: "cat2",
-    name: "finance",
-  },
-  {
-    id: "cat3",
-    name: "psychology",
-  },
-];
+import * as categoryService from "./category.service";
 
 const router: RouterType = Router();
 
-router.get("/", (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
+  const categories = await categoryService.getCategories();
   res.json({
     ok: true,
     message: "Success",
@@ -38,16 +25,12 @@ router.post("/", async (req: Request, res: Response) => {
   const data = await createCategorySchema.parseAsync(body);
 
   // create category
-  const newCategory: Category = {
-    id: Date.now().toString(),
-    ...data,
-  };
-  categories.push(newCategory);
+  const status = await categoryService.createCategory(data);
 
   res.json({
     ok: true,
     message: "Success",
-    data: newCategory,
+    data: status,
     error: null,
   });
 });
@@ -55,19 +38,9 @@ router.post("/", async (req: Request, res: Response) => {
 router.get("/:id", async (req: Request, res: Response) => {
   const categoryId = req.params.id;
 
-  const category = categories.find((c) => c.id === categoryId);
+  if (!categoryId) throw new Error("Id not provided");
 
-  if (!category) {
-    res.status(404).json({
-      ok: false,
-      message: `category with id: "${categoryId}" not found`,
-      data: null,
-      error: {
-        message: `category with id: "${categoryId}" not found`,
-      },
-    });
-    return;
-  }
+  const category = await categoryService.getCategoryById(categoryId);
 
   res.json({
     ok: true,
@@ -81,38 +54,17 @@ router.patch("/:id", async (req: Request, res: Response) => {
   const body = req.body;
   const categoryId = req.params.id;
 
+  if (!categoryId) throw new Error("Id not provided");
+
   //validate and sanitize
   const data = await updateCategorySchema.parseAsync(body);
 
-  const category = categories.find((c) => c.id === categoryId);
-
-  if (!category) {
-    res.status(404).json({
-      ok: false,
-      message: `category with id: "${categoryId}" not found`,
-      data: null,
-      error: {
-        message: `category with id: "${categoryId}" not found`,
-      },
-    });
-    return;
-  }
-
-  const updatedCategory: Category = {
-    ...category,
-    name: data.name ? data.name : category.name,
-  };
-  categories = categories.map((c) => {
-    if (c.id === categoryId) {
-      c = updatedCategory;
-    }
-    return c;
-  });
+  const status = await categoryService.updateCategoryById(categoryId, data);
 
   res.json({
     ok: true,
     message: "Success",
-    data: updatedCategory,
+    data: status,
     error: null,
   });
 });
@@ -120,28 +72,14 @@ router.patch("/:id", async (req: Request, res: Response) => {
 router.delete("/:id", async (req: Request, res: Response) => {
   const categoryId = req.params.id;
 
-  const category = categories.find((c) => c.id === categoryId);
+  if (!categoryId) throw new Error("Id not provided");
 
-  if (!category) {
-    res.status(404).json({
-      ok: false,
-      message: `category with id: "${categoryId}" not found`,
-      data: null,
-      error: {
-        message: `category with id: "${categoryId}" not found`,
-      },
-    });
-    return;
-  }
-
-  categories = categories.filter((c) => c.id !== categoryId);
+  const data = await categoryService.deleteCategoryById(categoryId);
 
   res.json({
     ok: true,
     message: "success",
-    data: {
-      id: category.id,
-    },
+    data: data,
     error: null,
   });
 });
