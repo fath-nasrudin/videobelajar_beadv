@@ -3,6 +3,7 @@ import { Application } from "express";
 import { Response } from "express";
 import { courseRouter } from "./features/course/course.route";
 import { categoryRouter } from "./features/category/category.route";
+import "dotenv/config";
 
 const app: Application = express();
 const PORT = 3000;
