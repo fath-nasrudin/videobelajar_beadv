@@ -87,14 +87,7 @@ export async function updateCourseById(
   return rows;
 }
 
-export function deleteCourseById(id: Course["id"]) {
-  const course = courses.find((c) => c.id === id);
-
-  if (!course) {
-    throw new Error(`Course with id: "${id}" not found`);
-  }
-
-  courses = courses.filter((c) => c.id !== id);
-
-  return { id: course.id };
+export async function deleteCourseById(id: Course["id"]) {
+  const [rows] = await db.execute("DELETE FROM courses WHERE id = ?", [id]);
+  return rows;
 }

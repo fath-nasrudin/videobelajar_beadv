@@ -74,7 +74,7 @@ router.delete("/:id", async (req: Request, res: Response) => {
 
   if (!courseId) throw new Error("Id not provided");
 
-  const data = courseService.deleteCourseById(courseId);
+  const data = await courseService.deleteCourseById(courseId);
 
   res.json({
     ok: true,
