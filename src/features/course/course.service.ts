@@ -41,13 +41,12 @@ export async function getCourses(): Promise<Course[]> {
   return rows;
 }
 
-export function createCourse(data: CreateCourseInputSchema): Course {
-  const newCourse: Course = {
-    id: Date.now().toString(),
-    ...data,
-  };
-  courses.push(newCourse);
-  return newCourse;
+export async function createCourse(data: CreateCourseInputSchema) {
+  const [rows] = await db.execute(
+    "INSERT INTO courses (title, description) VALUES (?, ?)",
+    [data.title, data.description ? data.description : null]
+  );
+  return rows;
 }
 
 export async function getCourseById(id: Course["id"]): Promise<Course> {

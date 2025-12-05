@@ -25,12 +25,12 @@ router.post("/", async (req: Request, res: Response) => {
   const data = await createCourseSchema.parseAsync(body);
 
   // create course
-  const newCourse = courseService.createCourse(data);
+  const status = await courseService.createCourse(data);
 
   res.json({
     ok: true,
     message: "Success",
-    data: newCourse,
+    data: status,
     error: null,
   });
 });
