@@ -4,6 +4,7 @@ import { Response } from "express";
 import { courseRouter } from "./features/course/course.route";
 import { categoryRouter } from "./features/category/category.route";
 import "dotenv/config";
+import { authRouter } from "./features/auth/auth.route";
 
 const app: Application = express();
 const PORT = 3000;
@@ -17,6 +18,7 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use("/api/courses", courseRouter);
 app.use("/api/categories", categoryRouter);
+app.use("/api/auth", authRouter);
 
 app.listen(PORT, () => {
   console.log(`running on http://localhost:${PORT}`);
