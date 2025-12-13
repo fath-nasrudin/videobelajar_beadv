@@ -9,7 +9,7 @@ export const userRegisterSchema = userSchema.pick({
 });
 
 export const userLoginSchema = z.object({
-  identifier: z.string().min(1), // bisa email atau username
+  email: z.email(),
   password: z.string().min(1),
 });
 
