@@ -2,10 +2,8 @@ import { compare, hash } from "bcrypt";
 import { prisma } from "../../lib/prisma";
 import { UserLoginInputSchema, UserRegisterInputSchema } from "./auth.schema";
 import { signAccessToken } from "./auth.utils";
-import { RefreshToken } from "./refresh-token.schema";
 import authDomain from "./auth.domain";
-
-const refreshTokenList: RefreshToken[] = [];
+import refreshTokenRepo from "./refresh-token.repo";
 
 export async function register(data: UserRegisterInputSchema) {
   const hashedPw = await hash(data.password, 10);
@@ -32,7 +30,7 @@ export async function login(
   );
 
   // save the hashed refresh token to the db
-  refreshTokenList.push(refreshTokenObject);
+  await refreshTokenRepo.createRefreshToken(refreshTokenObject);
 
   return {
     accessToken,
@@ -44,27 +42,22 @@ export async function refresh(
   refreshToken: string
 ): Promise<{ accessToken: string; refreshToken: string }> {
   const [tokenId, secret] = refreshToken.split(".");
+  if (!tokenId) throw new Error("Refresh Token Not Provided");
   if (!secret) throw new Error("Invalid Refresh Token Format");
   // ambil data
-  const record = refreshTokenList.find((rt) => rt.id === tokenId);
+  const record = await refreshTokenRepo.findRefreshTokenById(tokenId);
   if (!record) throw new Error("Refresh Token Not Found");
   // lempar ke domain untuk logicnya
   authDomain.validateRefreshToken(refreshToken, record);
-
-  // revoke current token
-  refreshTokenList.forEach((rt) => {
-    if (rt.id === tokenId) {
-      rt.revokedAt = new Date();
-    }
-  });
 
   const {
     refreshToken: newRefreshToken,
     refreshTokenObject: newRefreshTokenObject,
   } = authDomain.generateRefreshToken(record.userId);
 
-  // untuk db
-  refreshTokenList.push(newRefreshTokenObject);
+  // @TODO this to should use transaction
+  await refreshTokenRepo.revokeRefreshTokenById(tokenId);
+  await refreshTokenRepo.createRefreshToken(newRefreshTokenObject);
 
   const accessToken = signAccessToken({
     userId: record.userId,
