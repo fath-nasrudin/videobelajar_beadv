@@ -1,6 +1,7 @@
 import { Router, Router as IRouter, Request, Response } from "express";
 import { userLoginSchema, userRegisterSchema } from "./auth.schema";
 import authService from "./auth.service";
+import authMiddleware from "./auth.middleware";
 
 const router: IRouter = Router();
 
@@ -26,4 +27,13 @@ router.get("/login", async (req: Request, res: Response) => {
 
   res.status(200).json({ message: "Success", data: tokens });
 });
+
+router.get(
+  "/protected",
+  authMiddleware.verify,
+  (req: Request, res: Response) => {
+    res.json({ message: "Success access protected resource", user: req.user });
+  }
+);
+
 export const authRouter = router;
