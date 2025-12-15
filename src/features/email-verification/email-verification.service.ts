@@ -1,3 +1,5 @@
+import { config } from "../../config";
+import emailService from "../email.service";
 import userRepo from "../user/user.repo";
 import emailVerificationDomain from "./email-verification.domain";
 import emailVerificationRepo from "./email-verification.repo";
@@ -15,33 +17,30 @@ export async function sendEmailVerification(userId: string) {
   // simpan data sekarang
   await emailVerificationRepo.createEmailVerificationRecord(evObject);
 
+  const verificationLink = `${config.emailVerification.url.full}?token=${token}`;
   // kirim email
-  console.log({
-    message: "Dummy sending email verif",
-    token,
-  });
+  return emailService.sendVerificationEmail({ user, verificationLink });
 }
 
-export async function verifyEmailToken({
-  token,
-  userId,
-}: {
-  token: string;
-  userId: string;
-}) {
+export async function verifyEmailToken({ token }: { token: string }) {
   const hashedToken = emailVerificationDomain.hashEmailVerificationToken(token);
-  const record = await emailVerificationRepo.findEVByTokenHash(hashedToken);
-  const user = await userRepo.findUserById(userId);
+  try {
+    const record = await emailVerificationRepo.findEVByTokenHash(hashedToken);
+    if (!record) throw new Error("Token Not Found");
 
-  if (!record) throw new Error("Token Not Found");
-  if (!user) throw new Error("User Not Found");
+    const user = await userRepo.findUserById(record?.userId);
+    if (!user) throw new Error("User Not Found");
+    const userId = user.id;
 
-  emailVerificationDomain.verifyEmailToken({ evObject: record, user });
+    emailVerificationDomain.verifyEmailToken({ evObject: record, user });
 
-  // mark the user as verified
-  await userRepo.updateUserAsVerified(userId);
-  // mark the record as used
-  await emailVerificationRepo.updateEVasUsedById(record.id);
+    await userRepo.updateUserAsVerified(userId);
+    await emailVerificationRepo.updateEVasUsedById(record.id);
+
+    return { data: user, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
 }
 
 export default {

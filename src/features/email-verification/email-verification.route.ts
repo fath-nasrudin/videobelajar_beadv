@@ -11,30 +11,48 @@ router.get(
     const userData = req.user;
     if (!userData) throw new Error("Not Authenticated");
 
-    await emailVerificationService.sendEmailVerification(userData.id);
+    const { data, error } =
+      await emailVerificationService.sendEmailVerification(userData.id);
+
+    if (error) {
+      res.status(400).json({
+        message: "Failed to send email verification",
+        error,
+      });
+      return;
+    }
 
     res.status(200).json({
-      message: "Email Verification Sent",
+      message:
+        "Email Verification has Sent to your email. Check your spam email if not appear in the inbox",
+      data,
     });
+    return;
   }
 );
 
-router.get(
-  "/verify",
-  authMiddleware.verify,
-  async (req: Request, res: Response) => {
-    const token = req.query.token as string;
-    const userId = req.user?.id;
-    if (!userId) throw new Error("User Not Found");
-    if (!token) throw new Error("Token Not Found");
-    if (typeof token !== "string")
-      throw new Error("Something went wrong! Somehow token is not a string");
+router.get("/verify", async (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  if (!token) throw new Error("Token Not Found");
+  if (typeof token !== "string")
+    throw new Error("Something went wrong! Somehow token is not a string");
 
-    await emailVerificationService.verifyEmailToken({ token, userId });
+  const { data, error } = await emailVerificationService.verifyEmailToken({
+    token,
+  });
 
-    res.status(200).json({
-      message: "User Verified",
-    });
+  if (data) {
+    res.status(200).send(`User success verified. You can close this page`);
+    return;
   }
-);
+
+  if (error) {
+    let message = "Something unknown happened. Failed to verify";
+    if (error instanceof Error) message = error.message;
+
+    res.status(400).send(message);
+    return;
+  }
+});
+
 export const emailVerificationRouter = router;
