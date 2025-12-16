@@ -1,5 +1,4 @@
 import { RowDataPacket } from "mysql2";
-import { db } from "../../lib/db";
 import {
   Course,
   CreateCourseInputSchema,
@@ -77,7 +76,7 @@ export async function getCourseById(id: Course["id"]): Promise<Course> {
   //   `,
   //   [id]
   // );
-  const dbCourse = await prisma.courses.findUnique({
+  const course = await prisma.courses.findUnique({
     where: { id },
     include: {
       courses_categories: {
@@ -94,16 +93,16 @@ export async function getCourseById(id: Course["id"]): Promise<Course> {
     },
   });
 
-  if (!dbCourse) {
+  if (!course) {
     throw new Error(`Course with id: "${id}" not found`);
   }
 
-  const course: Course = {
-    description: dbCourse.description,
-    id: dbCourse.id,
-    title: dbCourse.title,
-    category: dbCourse?.courses_categories.map((cc) => cc.categories),
-  };
+  // const course: Course = {
+  //   description: dbCourse.description,
+  //   id: dbCourse.id,
+  //   title: dbCourse.title,
+  //   category: dbCourse?.courses_categories.map((cc) => cc.categories),
+  // };
 
   // @todo should fetch categories for the course
   // const thisCourseCategories =
