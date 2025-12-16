@@ -7,6 +7,7 @@ import { categoryRouter } from "./features/category/category.route";
 import "dotenv/config";
 import { authRouter } from "./features/auth/auth.route";
 import { emailVerificationRouter } from "./features/email-verification/email-verification.route";
+import { config } from "./config";
 
 const app: Application = express();
 const PORT = 3000;
@@ -24,6 +25,6 @@ app.use("/api/categories", categoryRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/email-verification", emailVerificationRouter);
 
-app.listen(PORT, () => {
-  console.log(`running on http://localhost:${PORT}`);
+app.listen(config.app.port, () => {
+  console.log(`running on port ${config.app.port}`);
 });

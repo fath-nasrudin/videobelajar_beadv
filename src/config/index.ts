@@ -1,6 +1,7 @@
 export const config = {
   app: {
     baseUrl: process.env.BASE_URL as string,
+    port: process.env.PORT,
   },
   emailVerification: {
     secret: process.env.EMAIL_VERIFICATION_SECRET as string,
