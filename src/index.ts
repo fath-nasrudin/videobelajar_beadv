@@ -8,6 +8,7 @@ import "dotenv/config";
 import { authRouter } from "./features/auth/auth.route";
 import { emailVerificationRouter } from "./features/email-verification/email-verification.route";
 import { config } from "./config";
+import { errorMiddleware } from "./lib/error/error.middleware";
 
 const app: Application = express();
 const PORT = 3000;
@@ -24,6 +25,9 @@ app.use("/api/courses", courseRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/email-verification", emailVerificationRouter);
+
+// error handler
+app.use(errorMiddleware);
 
 app.listen(config.app.port, () => {
   console.log(`running on port ${config.app.port}`);
