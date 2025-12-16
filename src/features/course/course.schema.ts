@@ -1,6 +1,10 @@
 import z from "zod";
 import { categorySchema } from "../category/category.schema";
 
+export const courseQueryParamsSchema = z.object({
+  search: z.string().trim().min(1).max(100).optional(),
+});
+
 export const courseSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
@@ -18,3 +22,4 @@ export const updateCourseSchema = createCourseSchema.partial();
 export type Course = z.infer<typeof courseSchema>;
 export type CreateCourseInputSchema = z.infer<typeof createCourseSchema>;
 export type UpdateCourseInputSchema = z.infer<typeof updateCourseSchema>;
+export type CourseQueryParamsSchema = z.infer<typeof courseQueryParamsSchema>;

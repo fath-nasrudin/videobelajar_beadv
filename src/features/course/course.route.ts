@@ -1,6 +1,7 @@
 import { Request, Response, Router, Router as RouterType } from "express";
 import {
   Course,
+  courseQueryParamsSchema,
   createCourseSchema,
   updateCourseSchema,
 } from "./course.schema";
@@ -9,8 +10,13 @@ import * as courseService from "./course.service";
 const router: RouterType = Router();
 
 router.get("/", async (req: Request, res: Response) => {
-  const courses = await courseService.getCourses();
+  const rawQuery = req.query;
+  const queryParams = await courseQueryParamsSchema.parseAsync(rawQuery);
+
+  // const queryParams = rawQuery;
+  const courses = await courseService.getCourses(queryParams);
   res.json({
+    queryParams,
     ok: true,
     message: "Success",
     data: courses,

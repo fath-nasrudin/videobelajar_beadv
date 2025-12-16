@@ -1,10 +1,12 @@
 import { RowDataPacket } from "mysql2";
 import {
   Course,
+  CourseQueryParamsSchema,
   CreateCourseInputSchema,
   UpdateCourseInputSchema,
 } from "./course.schema";
 import { prisma } from "../../lib/prisma";
+import { coursesWhereInput } from "../../generated/prisma/models";
 
 let courses: Course[] = [
   {
@@ -36,10 +38,19 @@ let courses: Course[] = [
 
 interface CourseDB extends Course, RowDataPacket {}
 
-export async function getCourses(): Promise<Course[]> {
+export async function getCourses(
+  queryParams: CourseQueryParamsSchema
+): Promise<Course[]> {
   // const [rows] = await db.query<CourseDB[]>("SELECT * from courses");
   // return rows;
-  let courses = await prisma.courses.findMany();
+  const and: coursesWhereInput["AND"] = [];
+  if (queryParams.search) {
+    and.push({ title: { contains: queryParams.search } });
+  }
+
+  let courses = await prisma.courses.findMany({
+    where: { AND: and },
+  });
 
   return courses;
 }
