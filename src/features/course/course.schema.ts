@@ -3,6 +3,10 @@ import { categorySchema } from "../category/category.schema";
 
 export const courseQueryParamsSchema = z.object({
   search: z.string().trim().min(1).max(100).optional(),
+  categories: z
+    .string()
+    .transform((v) => v.split(",").filter(Boolean))
+    .optional(),
 });
 
 export const courseSchema = z.object({

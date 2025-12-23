@@ -8,35 +8,7 @@ import {
 import { prisma } from "../../lib/prisma";
 import { coursesWhereInput } from "../../generated/prisma/models";
 
-let courses: Course[] = [
-  {
-    id: "c1",
-    title: "Dasar Pemrograman JavaScript",
-    description: "Memahami variabel, tipe data, dan control flow.",
-  },
-  {
-    id: "c2",
-    title: "Fundamental TypeScript",
-    description: "Belajar static typing, interface, dan generics.",
-  },
-  {
-    id: "c3",
-    title: "Database MySQL untuk Backend",
-    description: "DDL, DML, indexing, dan basic query optimization.",
-  },
-  {
-    id: "c4",
-    title: "Pemrograman Backend dengan Express",
-    description: "Routing, middleware, error handling, dan struktur folder.",
-  },
-  {
-    id: "c5",
-    title: "Dasar React untuk Frontend",
-    description: "Component, state, props, dan rendering.",
-  },
-];
-
-interface CourseDB extends Course, RowDataPacket {}
+// interface CourseDB extends Course, RowDataPacket {}
 
 export async function getCourses(
   queryParams: CourseQueryParamsSchema
@@ -44,8 +16,23 @@ export async function getCourses(
   // const [rows] = await db.query<CourseDB[]>("SELECT * from courses");
   // return rows;
   const and: coursesWhereInput["AND"] = [];
+
+  // search filter
   if (queryParams.search) {
     and.push({ title: { contains: queryParams.search } });
+  }
+
+  // categories filter
+  if (queryParams.categories) {
+    and.push({
+      courses_categories: {
+        some: {
+          category_id: {
+            in: queryParams.categories,
+          },
+        },
+      },
+    });
   }
 
   let courses = await prisma.courses.findMany({
