@@ -46,6 +46,7 @@ model courses {
   title              String
   description        String?              @db.Text
   courses_categories courses_categories[]
+  price              Int
 }
 
 model courses_categories {
