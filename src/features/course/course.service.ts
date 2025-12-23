@@ -35,6 +35,24 @@ export async function getCourses(
     });
   }
 
+  // price filter
+  if (queryParams.priceMin) {
+    and.push({
+      price: {
+        gte: queryParams.priceMin || 0,
+      },
+    });
+  }
+
+  // price
+  if (queryParams.priceMax) {
+    and.push({
+      price: {
+        lte: queryParams.priceMax,
+      },
+    });
+  }
+
   const orderBy = queryParams.sort.map((s) => ({
     [s.field]: s.direction,
   }));

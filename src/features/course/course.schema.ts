@@ -23,6 +23,8 @@ export const courseQueryParamsSchema = z.object({
         };
       });
     }),
+  priceMin: z.coerce.number().min(1).optional(),
+  priceMax: z.coerce.number().min(1).optional(),
 });
 
 export const courseSchema = z.object({
